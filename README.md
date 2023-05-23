@@ -7,7 +7,7 @@
 ``` 
  $ git branch <branchname>
 ```
-- Create and got to the branch directly
+- Create and go to the branch directly
 ```
  $ git checkout -b <branchname>
 ```
