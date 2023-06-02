@@ -40,8 +40,13 @@ void ATPG::test() {
         printf("# total detected faults: %d\n", total_detect_num);
         printf("# fault coverage: %lf %\n", (double) total_detect_num / (double) num_of_tdf_fault * 100);
         return;
-    }// if fsim only
+    }// if tdffsim only
 
+    /* TDF test generation mode */
+    if (tdfatpg_only) {
+        tdfatpg();
+        return;
+    }
 
     /* test generation mode */
     /* Figure 5 in the PODEM paper */

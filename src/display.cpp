@@ -114,6 +114,17 @@ void ATPG::display_io() {
   fprintf(stdout, "\n");
 }/* end of display_io */
 
+void ATPG::display_io_tdf(string& vec) {
+  int i;
+  string v1 = vec.substr(0, vec.size()-1);
+  fprintf(stdout, "T\'");
+  fprintf(stdout, "%s", v1.c_str());
+  fprintf(stdout, " ");
+  fprintf(stdout, "%c", vec[vec.size()-1]);
+  fprintf(stdout, "'");
+  fprintf(stdout, "\n");
+}/* end of display_io */
+
 
 void ATPG::display_undetect() {
   int i;

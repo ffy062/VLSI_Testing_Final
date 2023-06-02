@@ -68,6 +68,9 @@ class ATPG {
   /* Test compression flag */
   bool test_compression = false;
 
+  /* declared in tdfatpg.cpp */
+  void tdfatpg();
+
   /* defined in main.cpp */
   void set_fsim_only(const bool &);
   void set_tdfsim_only(const bool &);
@@ -202,6 +205,7 @@ class ATPG {
   bool no_test{};          // true when it is proven that no test exists for this fault
 
   int podem(fptr, int &);
+  int podemtdf(fptr, int &);
   wptr fault_evaluate(fptr);
   void forward_imply(wptr);
   wptr test_possible(fptr);
@@ -219,6 +223,7 @@ class ATPG {
   /* declared in display.cpp */
   void display_line(fptr);
   void display_io();
+  void display_io_tdf(string&);
   void display_undetect();
   void display_fault(fptr);
 
