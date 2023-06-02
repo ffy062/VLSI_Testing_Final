@@ -1,6 +1,17 @@
 # VLSI Testing Final Project
 - Topic: N-detect TDF ATPG and Compression
 
+# TDF-pattern generation and fault simulation
+## TDF ATPG
+```
+    $ ./atpg -tdfatpg -ndet <num> -compression ../sample_circuits/<circuit_name>.ckt > ../tdf_patterns/<circuit_name>.pat
+```
+- -ndet is for n-detect ATPG
+- -compression is whether to perform test compression
+## TDF fault simulation
+```
+    $ ./atpg -tdfsim ../tdf_patterns/<circuit_name>.pat ../sample_circuits/<circuit_name>.ckt
+```
 
 # Using Git
 ## Create a branch
