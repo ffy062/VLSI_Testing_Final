@@ -73,6 +73,7 @@ class ATPG {
   /* declared in tdfatpg.cpp */
   void tdfatpg();
   int tdfsim_v1v2(const string&, const string&, int&);
+  void reset_fault_detect_status();
 
   /* defined in main.cpp */
   void set_fsim_only(const bool &);
@@ -98,8 +99,10 @@ class ATPG {
   /*defined in tdfsim.cpp*/
   void generate_tdfault_list();
   void transition_delay_fault_simulation(int &);
-  void tdfault_sim_a_vector(const string &, int &);
-  void tdfault_sim_a_vector2(const string &, int &);
+  // add a flag to seperate ATPG and fault sim, a int to identify which pattern
+  void tdfault_sim_a_vector(const string &, int &, bool, int); 
+  void tdfault_sim_a_vector2(const string &, int &, bool, int);
+  void tdfault_fault_drop(int);
   int num_of_tdf_fault{};
   int detected_num{};
   bool get_tdfsim_only() { return tdfsim_only; }
@@ -328,6 +331,8 @@ class ATPG {
   class FAULT {
    public:
     FAULT();
+
+    int be_det;                /* to identify which pattern detects the fault */
 
     nptr node;                 /* gate under test(NIL if PI/PO fault) */
     short io;                  /* 0 = GI; 1 = GO */

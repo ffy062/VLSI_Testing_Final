@@ -28,7 +28,7 @@ void ATPG::tdfatpg() {
                 vec1.clear();
                 vec2.clear();
                 vec1 = '0' + vec.substr(0, vec.size());
-                vec2 = '1' + vec.substr(1, vec.size());
+                vec2 = '1' + vec.substr(0, vec.size());
                 /* run a fault simulation, drop ALL detected faults */
                 result = tdfsim_v1v2(vec1, vec2, current_detect_num);
                 // 1 means vec1, 0 means vec2, -1 means both detect num = 0 
@@ -67,10 +67,12 @@ void ATPG::tdfatpg() {
                     }
                 }
                 break;
-            case FALSE:fault_under_test->detect = REDUNDANT;
+            case FALSE:
+                fault_under_test->detect = REDUNDANT;
                 no_of_redundant_faults++;
                 break;
-            case MAYBE:no_of_aborted_faults++;
+            case MAYBE:
+                no_of_aborted_faults++;
                 break;
         }
         fault_under_test->test_tried = true;
@@ -97,29 +99,51 @@ void ATPG::tdfatpg() {
 
 int ATPG::tdfsim_v1v2(const string& vec1, const string& vec2, int& total_detect_num) {
     int vec1_det_num, vec2_det_num;
-    tdfault_sim_a_vector(vec1,  total_detect_num);
-    vec1_det_num =  total_detect_num;
-    tdfault_sim_a_vector(vec2,  total_detect_num);
-    vec2_det_num =  total_detect_num;
+    // Reset fault be_detect flag
+    for(auto f : flist_undetect) {
+        f->be_det = 0;
+    }
+
+    tdfault_sim_a_vector(vec1,  total_detect_num, true, 1);
+    vec1_det_num = total_detect_num;
+    reset_fault_detect_status();
+    tdfault_sim_a_vector(vec2,  total_detect_num, true, 2);
+    vec2_det_num = total_detect_num;
     if(vec1_det_num > vec2_det_num) {
-        total_detect_num +=vec1_det_num;
+        tdfault_fault_drop(1);
+        total_detect_num += vec1_det_num;
+        //fprintf(stdout, "vector detects %d faults\n", vec1_det_num);
         return 1;
     }
     else {
         if(vec2_det_num == 0) {
-            total_detect_num +=vec2_det_num;
             return -1;
         }
         else if(vec1_det_num == vec2_det_num) {
             int res = rand() & 01;
-            if(res)
-                total_detect_num +=vec1_det_num;
-            else
-                total_detect_num +=vec2_det_num; 
+            if(res) {
+                tdfault_fault_drop(1);
+                total_detect_num += vec1_det_num;
+                //fprintf(stdout, "vector detects %d faults\n", vec1_det_num);
+            }
+            else {
+                tdfault_fault_drop(2);
+                total_detect_num += vec2_det_num;
+                //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
+            } 
             return res;
         }
         else {
+            tdfault_fault_drop(2);
+            total_detect_num += vec2_det_num;
+            //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
             return 0;
         }
+    }
+}
+
+void ATPG::reset_fault_detect_status() {
+    for(auto f : flist_undetect) {
+        f->detect = FALSE;
     }
 }
