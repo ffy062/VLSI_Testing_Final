@@ -72,6 +72,7 @@ class ATPG {
 
   /* declared in tdfatpg.cpp */
   void tdfatpg();
+  int tdfsim_v1v2(const string&, const string&, int&);
 
   /* defined in main.cpp */
   void set_fsim_only(const bool &);
