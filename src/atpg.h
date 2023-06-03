@@ -65,6 +65,8 @@ class ATPG {
 
   ATPG();
 
+  /* vector to store U information of TDF vector */
+  vector<int> cktu;
   /* Test compression flag */
   bool test_compression = false;
 

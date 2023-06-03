@@ -141,15 +141,19 @@ int ATPG::podemtdf(const fptr fault, int &current_backtracks) {
         switch (cktin[i]->value) {
           case 0:
           case 1:
+            cktu.push_back(0);
             break;
           case D:
             cktin[i]->value = 1;
+            cktu.push_back(0);
             break;
           case D_bar:
             cktin[i]->value = 0;
+            cktu.push_back(0);
             break;
           case U:
             cktin[i]->value = rand() & 01;
+            cktu.push_back(1);
             break; // random fill U
         }
       }
