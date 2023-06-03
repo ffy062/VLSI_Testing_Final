@@ -10,7 +10,7 @@
 #atpg: cputime for rearranging gate inputs ../sample_circuits/c432.ckt: 0.0s 0.0s
 #atpg: cputime for creating dummy nodes ../sample_circuits/c432.ckt: 0.0s 0.0s
 #atpg: cputime for generating fault list ../sample_circuits/c432.ckt: 0.0s 0.0s
-T'110101011111110111111111110111110100 0'
+T'110111111101110111011101110101110101 0'
 
 #FAULT COVERAGE RESULTS :
 #number of test vectors = 1
@@ -21,4 +21,4 @@ T'110101011111110111111111110111110100 0'
 #number of equivalent detected faults = 3
 #equivalent gate fault coverage =  0.29%
 
-#atpg: cputime for test pattern generation ../sample_circuits/c432.ckt: 0.6s 0.6s
+#atpg: cputime for test pattern generation ../sample_circuits/c432.ckt: 1.9s 1.9s

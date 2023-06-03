@@ -211,13 +211,17 @@ class ATPG {
   bool no_test{};          // true when it is proven that no test exists for this fault
 
   int podem(fptr, int &);
-  int podemtdf(fptr, int &);
+  int podemtdf(fptr, int &, float);
   wptr fault_evaluate(fptr);
   void forward_imply(wptr);
   wptr test_possible(fptr);
+  wptr test_possible(fptr, float);
   wptr find_pi_assignment(wptr, const int &);
+  wptr find_pi_assignment(wptr, const int &, float);
   wptr find_hardest_control(nptr);
+  wptr find_hardest_control(nptr, float);
   wptr find_easiest_control(nptr);
+  wptr find_easiest_control(nptr, float);
   nptr find_propagate_gate(const int &);
   bool trace_unknown_path(wptr);
   bool check_test();

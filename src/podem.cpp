@@ -10,7 +10,7 @@
 #define CONFLICT 2
 
 /* generates a single pattern for a single fault */
-int ATPG::podemtdf(const fptr fault, int &current_backtracks) {
+int ATPG::podemtdf(const fptr fault, int &current_backtracks, float backtrace_prob) {
   int i, ncktwire, ncktin;
   wptr wpi; // points to the PI currently being assigned
   forward_list<wptr> decision_tree; // design_tree (a LIFO stack)
@@ -26,7 +26,6 @@ int ATPG::podemtdf(const fptr fault, int &current_backtracks) {
   no_of_backtracks = 0;
   find_test = false;
   no_test = false;
-
   mark_propagate_tree(fault->node);
 
   /* Fig 7 starts here */
@@ -54,7 +53,7 @@ int ATPG::podemtdf(const fptr fault, int &current_backtracks) {
          !(find_test && (attempt_num == total_attempt_num))) {
 
     /* check if test possible.   Fig. 7.1 */
-    if (wpi = test_possible(fault)) {
+    if (wpi = test_possible(fault, backtrace_prob)) {
       wpi->set_changed();
       /* insert a new PI into decision_tree */
       decision_tree.push_front(wpi);
@@ -214,7 +213,7 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
          !(find_test && (attempt_num == total_attempt_num))) {
 
     /* check if test possible.   Fig. 7.1 */
-    if (wpi = test_possible(fault)) {
+    if (wpi = test_possible(fault, 0)) {
       wpi->set_changed();
       /* insert a new PI into decision_tree */
       decision_tree.push_front(wpi);
@@ -381,7 +380,7 @@ void ATPG::forward_imply(const wptr w) {
  * this function determines objective_wire and objective_level. 
  * it returns the newly assigned PI if test is possible. 
  * it returns NULL if no test is possible. */
-ATPG::wptr ATPG::test_possible(const fptr fault) {
+ATPG::wptr ATPG::test_possible(const fptr fault, float backtrace_prob) {
   nptr n;
   wptr object_wire;
   int object_level;
@@ -496,14 +495,14 @@ ATPG::wptr ATPG::test_possible(const fptr fault) {
 
   /* find a pi to achieve the objective_level on objective_wire.
    * returns nullptr if no PI is found.  */
-  return (find_pi_assignment(object_wire, object_level));
+  return (find_pi_assignment(object_wire, object_level, backtrace_prob));
 }/* end of test_possible */
 
 
 /* backtrace to PI, assign a PI to achieve the objective.  Fig 9
  * returns the wire pointer to PI if succeed.
  * returns NULL if no such PI found. */
-ATPG::wptr ATPG::find_pi_assignment(const wptr object_wire, const int &object_level) {
+ATPG::wptr ATPG::find_pi_assignment(const wptr object_wire, const int &object_level, float backtrace_prob) {
   wptr new_object_wire;
   int new_object_level;
 
@@ -518,14 +517,14 @@ ATPG::wptr ATPG::find_pi_assignment(const wptr object_wire, const int &object_le
     switch (object_wire->inode.front()->type) {
       case OR:
       case NAND:
-        if (object_level) new_object_wire = find_easiest_control(object_wire->inode.front());  // decision gate
-        else new_object_wire = find_hardest_control(object_wire->inode.front()); // imply gate
+        if (object_level) new_object_wire = find_easiest_control(object_wire->inode.front(), backtrace_prob);  // decision gate
+        else new_object_wire = find_hardest_control(object_wire->inode.front(), backtrace_prob); // imply gate
         break;
       case NOR:
       case AND:
         // TODO  similar to OR and NAND but different polarity
-        if (object_level) new_object_wire = find_hardest_control(object_wire->inode.front());
-        else new_object_wire = find_easiest_control(object_wire->inode.front());
+        if (object_level) new_object_wire = find_hardest_control(object_wire->inode.front(), backtrace_prob);
+        else new_object_wire = find_easiest_control(object_wire->inode.front(), backtrace_prob);
         break;
         //  TODO END
       case NOT:
@@ -547,34 +546,46 @@ ATPG::wptr ATPG::find_pi_assignment(const wptr object_wire, const int &object_le
         new_object_level = object_level ^ 1;
         break;
     }
-    if (new_object_wire) return (find_pi_assignment(new_object_wire, new_object_level));
+    if (new_object_wire) return (find_pi_assignment(new_object_wire, new_object_level, backtrace_prob));
     else return (nullptr);
   }
 }/* end of find_pi_assignment */
 
 
 /* Fig 9.4 */
-ATPG::wptr ATPG::find_hardest_control(const nptr n) {
+ATPG::wptr ATPG::find_hardest_control(const nptr n, float backtrace_prob) {
   int i;
 
   /* because gate inputs are arranged in a increasing level order,
    * larger input index means harder to control */
+  wptr ctrl_wire = nullptr;
   for (i = n->iwire.size() - 1; i >= 0; i--) {
-    if (n->iwire[i]->value == U) return (n->iwire[i]);
+    //if (n->iwire[i]->value == U) return (n->iwire[i]);
+    if(n->iwire[i]->value == U) {
+      if(ctrl_wire == nullptr) ctrl_wire = n->iwire[i];
+      if((float) rand() / RAND_MAX > backtrace_prob) return (n->iwire[i]);
+    }
   }
-  return (nullptr);
+  //return (nullptr);
+  return ctrl_wire;
 }/* end of find_hardest_control */
 
 
 /* Fig 9.5 */
-ATPG::wptr ATPG::find_easiest_control(const nptr n) {
+ATPG::wptr ATPG::find_easiest_control(const nptr n, float backtrace_prob) {
   int i, nin;
   // TODO  similar to hardiest_control but increasing level order
+  wptr ctrl_wire = nullptr;
   for (i = 0, nin = n->iwire.size(); i < nin; i++) {
-    if (n->iwire[i]->value == U) return (n->iwire[i]);
+    //if (n->iwire[i]->value == U) return (n->iwire[i]);
+    if(n->iwire[i]->value == U) {
+      if(ctrl_wire == nullptr) ctrl_wire = n->iwire[i];
+      if((float) rand() / RAND_MAX > backtrace_prob) return (n->iwire[i]);
+    }
   }
   //  TODO END
-  return (nullptr);
+  //return (nullptr);
+  return ctrl_wire;
 }/* end of find_easiest_control */
 
 
@@ -606,6 +617,7 @@ ATPG::nptr ATPG::find_propagate_gate(const int &level) {
       }
     }
   }
+  return nullptr;
 }/* end of find_propagate_gate */
 
 
