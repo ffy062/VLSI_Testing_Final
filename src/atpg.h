@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <math.h>
 
 #define HASHSIZE 3911
 
@@ -74,6 +75,7 @@ class ATPG {
   void tdfatpg();
   int tdfsim_v1v2(const string&, const string&, int&);
   void reset_fault_detect_status();
+  void set_fault_detect_status();
 
   /* defined in main.cpp */
   void set_fsim_only(const bool &);
@@ -100,8 +102,8 @@ class ATPG {
   void generate_tdfault_list();
   void transition_delay_fault_simulation(int &);
   // add a flag to seperate ATPG and fault sim, a int to identify which pattern
-  void tdfault_sim_a_vector(const string &, int &, bool, int); 
-  void tdfault_sim_a_vector2(const string &, int &, bool, int);
+  void tdfault_sim_a_vector(const string &, int &, bool, int, bool &); 
+  void tdfault_sim_a_vector2(const string &, int &, bool, int, bool &);
   void tdfault_fault_drop(int);
   int num_of_tdf_fault{};
   int detected_num{};
@@ -123,6 +125,8 @@ class ATPG {
   typedef unique_ptr<WIRE> wptr_s;    /* using smart pointer to hold/maintain the instances of WIRE */
   typedef unique_ptr<NODE> nptr_s;    /* using smart pointer to hold/maintain the instances of NODE */
   typedef unique_ptr<FAULT> fptr_s;    /* using smart pointer to hold/maintain the instances of FAULT */
+
+  fptr current_fault;                  /* current fault under test*/
 
 
   /* fault list */
@@ -337,6 +341,7 @@ class ATPG {
     FAULT();
 
     int be_det;                /* to identify which pattern detects the fault */
+    int tried_time{};            /* how many times the fault has been tested*/
 
     nptr node;                 /* gate under test(NIL if PI/PO fault) */
     short io;                  /* 0 = GI; 1 = GO */

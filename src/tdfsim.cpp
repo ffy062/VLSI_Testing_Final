@@ -21,17 +21,19 @@
 void ATPG::transition_delay_fault_simulation(int &total_detect_num) {
   int i;
   int current_detect_num = 0;
+  bool hit;
 
   /* for every vector */
   for (i = vectors.size() - 1; i >= 0; i--) {
-    tdfault_sim_a_vector(vectors[i], current_detect_num, false, 0);
+    tdfault_sim_a_vector(vectors[i], current_detect_num, false, 0, hit);
     total_detect_num += current_detect_num;
     fprintf(stdout, "vector[%d] detects %d faults (%d)\n", i, current_detect_num, total_detect_num);
   }
 }// fault_simulate_vectors
 
-void ATPG::tdfault_sim_a_vector(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn) {
+void ATPG::tdfault_sim_a_vector(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn, bool &hit_target) {
   int i, nckt;
+  bool activate_target = false;
   fptr f;
 
   for (i = 0; i < cktin.size(); i++) {
@@ -55,13 +57,12 @@ void ATPG::tdfault_sim_a_vector(const string &vec, int &num_of_current_detect, b
     } else
       f->activate = FALSE;
   }
-
-  tdfault_sim_a_vector2(vec, num_of_current_detect, is_ATPG, ptn);
+  tdfault_sim_a_vector2(vec, num_of_current_detect, is_ATPG, ptn, hit_target);
 
 }
 
 /* fault simulate a single test vector */
-void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn) {
+void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn, bool &hit_target) {
   wptr w, faulty_wire;
   /* array of 16 fptrs, which points to the 16 faults in a simulation packet  */
   fptr simulated_fault_list[num_of_pattern];
@@ -278,28 +279,19 @@ void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, 
   if(is_ATPG) {
     for(auto fptr_ele : flist_undetect) {
       if(fptr_ele->detect == TRUE) {
-        num_of_current_detect += fptr_ele->eqv_fault_num;
         fptr_ele->be_det += ptn;
+        if(fptr_ele->detected_time < detected_num) {
+          num_of_current_detect += fptr_ele->eqv_fault_num;
+        }
       }
     }
+    if(current_fault->detect)
+      hit_target = true;
     return;
   }
   flist_undetect.remove_if(
       [&](const fptr fptr_ele) {
         if (fptr_ele->detect == TRUE && ++fptr_ele->detected_time == detected_num) {
-          string IO; 
-          /*if(fptr_ele->io == GO) IO = "GO";
-          else IO = "GI";
-          if(fptr_ele->fault_type == STR)
-            cout << "fault "<<  fptr_ele->fault_no<< ": STR at wire-"<< sort_wlist[fptr_ele->to_swlist]->name<< ", "<< IO<< " of "<< fptr_ele->node->name <<endl;
-          else
-            cout << "fault "<<  fptr_ele->fault_no<< ": STF at wire- "<< sort_wlist[fptr_ele->to_swlist]->name<< ", "<< IO<< " of "<< fptr_ele->node->name <<endl;*/
-          // fptr_ele->detected_time++;
-          // if(fptr_ele->detected_time == detected_num) {
-         
-          //   return true;
-          // }
-          //fptr_ele->detect = TRUE;
           num_of_current_detect += fptr_ele->eqv_fault_num;
           return true;
         } else {
@@ -311,17 +303,21 @@ void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, 
 }/* end of fault_sim_a_vector */
 
 void ATPG::tdfault_fault_drop(int ptn) {
+  // // We do not drop the fault from the fault list to calculate the detection of all patterns
+  // for(auto fptr_ele : flist_undetect) {
+  //   int right_ptn = (fptr_ele->be_det == 3 || fptr_ele->be_det == ptn)? 1 : 0;
+  //   if(right_ptn) {
+  //     fptr_ele->detected_time += 1;
+  //     fptr_ele->detect = FALSE;    
+  //   }
+  //   else {
+  //     fptr_ele->detect = FALSE;
+  //   }
+  // }
   flist_undetect.remove_if(
       [&](const fptr fptr_ele) {
         int right_ptn = (fptr_ele->be_det == 3 || fptr_ele->be_det == ptn)? 1 : 0;
         if (right_ptn) {
-          string IO; 
-          /*if(fptr_ele->io == GO) IO = "GO";
-          else IO = "GI";
-          if(fptr_ele->fault_type == STR)
-            cout << "fault "<<  fptr_ele->fault_no<< ": STR at wire-"<< sort_wlist[fptr_ele->to_swlist]->name<< ", "<< IO<< " of "<< fptr_ele->node->name <<endl;
-          else
-            cout << "fault "<<  fptr_ele->fault_no<< ": STF at wire- "<< sort_wlist[fptr_ele->to_swlist]->name<< ", "<< IO<< " of "<< fptr_ele->node->name <<endl;*/
           fptr_ele->detected_time++;
           if(fptr_ele->detected_time == detected_num) {
             fptr_ele->detect = TRUE;
