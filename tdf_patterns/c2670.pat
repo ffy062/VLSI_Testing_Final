@@ -333,4 +333,4 @@ T'100101100010011110000001010001101010011011011110111000011011110111001010011111
 #number of equivalent detected faults = 5322
 #equivalent gate fault coverage = 94.43%
 
-#atpg: cputime for test pattern generation ../sample_circuits/c2670.ckt: 2.0s 2.0s
+#atpg: cputime for test pattern generation ../sample_circuits/c2670.ckt: 1.9s 1.9s

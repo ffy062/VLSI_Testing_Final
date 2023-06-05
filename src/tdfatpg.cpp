@@ -84,7 +84,7 @@ void ATPG::tdfatpg() {
                                             in_vector_no++;
                                             break;
                                         }
-                                        if((float) rand() / RAND_MAX > 0.1 + 0.5 * j) {
+                                        if((float) rand() / RAND_MAX > 0.5 * j) {
                                             if(i == 0) 
                                                 vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
                                             else
@@ -98,6 +98,113 @@ void ATPG::tdfatpg() {
                                         }
                                     }
                                 }
+                            }
+                        }
+                        else {
+                            for(int i = 0; i < cktu.size() + 1; ++i) {
+                                if(cktu[i]) {
+                                    if(i == 0) {
+                                        vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
+                                        vec2[cktu.size()] = (vec2[cktu.size()] == '0')? '1' : '0';
+                                    }
+                                    else {
+                                        vec1[i-1] = (vec1[i-1] == '0')? '1' : '0';
+                                        vec2[i-1] = (vec2[i-1] == '0')? '1' : '0';
+                                    }
+                                }
+                            }
+                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
+                            if(result == 1) {
+                                display_io_tdf(vec1);
+                                //total_detect_num +=vec1_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+                            else if(result == 0) {
+                                display_io_tdf(vec2);
+                                //total_detect_num +=vec2_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+                            
+                            for(int i = 0; i < cktu.size() + 1; ++i) {
+                                if(cktu[i]) {
+                                    if(rand() & 01) {
+                                        if(i == 0) {
+                                            vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
+                                            vec2[cktu.size()] = (vec2[cktu.size()] == '0')? '1' : '0';
+                                        }
+                                        else {
+                                            vec1[i-1] = (vec1[i-1] == '0')? '1' : '0';
+                                            vec2[i-1] = (vec2[i-1] == '0')? '1' : '0';
+                                        }
+                                    }
+                                }
+                            }
+                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
+                            if(result == 1) {
+                                display_io_tdf(vec1);
+                                //total_detect_num +=vec1_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+                            else if(result == 0) {
+                                display_io_tdf(vec2);
+                                //total_detect_num +=vec2_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+
+                            for(int i = 0; i < cktu.size() + 1; ++i) {
+                                if(cktu[i]) {
+                                    if(i == 0) {
+                                        vec1[cktu.size()] = '0';
+                                        vec2[cktu.size()] = '0';
+                                    }
+                                    else {
+                                        vec1[i-1] = '0';
+                                        vec2[i-1] = '0';
+                                    }
+                                }    
+                            }
+                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
+                            if(result == 1) {
+                                display_io_tdf(vec1);
+                                //total_detect_num +=vec1_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+                            else if(result == 0) {
+                                display_io_tdf(vec2);
+                                //total_detect_num +=vec2_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+
+                            for(int i = 0; i < cktu.size() + 1; ++i) {
+                                if(cktu[i]) {
+                                    if(i == 0) {
+                                        vec1[cktu.size()] = '1';
+                                        vec2[cktu.size()] = '1';
+                                    }
+                                    else {
+                                        vec1[i-1] = '1';
+                                        vec2[i-1] = '1';
+                                    }
+                                }    
+                            }
+                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
+                            if(result == 1) {
+                                display_io_tdf(vec1);
+                                //total_detect_num +=vec1_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+                            else if(result == 0) {
+                                display_io_tdf(vec2);
+                                //total_detect_num +=vec2_det_num;
+                                in_vector_no++;
+                                break;
                             }
                         }
                     }
