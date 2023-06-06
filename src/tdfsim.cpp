@@ -275,7 +275,7 @@ void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, 
   } // end loop. for f = flist
 
   /* fault dropping  */
-  // We use a sepearte function to perform fault dropping when ATPG
+  // We use a seperate function to perform fault dropping when ATPG
   if(is_ATPG) {
     for(auto fptr_ele : flist_undetect) {
       if(fptr_ele->detect == TRUE) {

@@ -2,7 +2,7 @@
 
 void ATPG::tdfatpg() {
     string vec, vec1, vec2;
-    int max_tried = max(1, (int) log2((double) detected_num));
+    int max_tried = max(1, (int) log2((double) detected_num)), cur_tried = 0;
     float unknown_ratio, backtrace_prob;
     int vec1_det_num, vec2_det_num, unknown_bit, result;
     int current_detect_num = 0;
@@ -16,7 +16,10 @@ void ATPG::tdfatpg() {
     srand(8);
     fptr fault_under_test = flist_undetect.front();
     int fault_idx = 0;
+    int cnt = 0;
     while (fault_under_test != nullptr) {
+        if(++cnt % 777 == 0)
+            srand(8 + cnt % 19);
         // Perform PODEM multiple times for a fault, each time with different backtrace prob
         current_fault = fault_under_test;
         for(int i = 0; i < 4; ++i) {
@@ -50,6 +53,65 @@ void ATPG::tdfatpg() {
                         //total_detect_num +=vec2_det_num;
                     }
                     else {
+                        for(int i = 0; i < cktu.size() + 1; ++i) {
+                            if(cktu[i]) {
+                                if(rand() & 01) {
+                                    if(i == 0) {
+                                        vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
+                                        vec2[cktu.size()] = (vec2[cktu.size()] == '0')? '1' : '0';
+                                    }
+                                    else {
+                                        vec1[i-1] = (vec1[i-1] == '0')? '1' : '0';
+                                        vec2[i-1] = (vec2[i-1] == '0')? '1' : '0';
+                                    }
+                                }
+                            }
+                        }
+                        result = tdfsim_v1v2(vec1, vec2, current_detect_num);
+                        if(result == 1) {
+                            display_io_tdf(vec1);
+                            //total_detect_num +=vec1_det_num;
+                            in_vector_no++;
+                            break;
+                        }
+                        else if(result == 0) {
+                            display_io_tdf(vec2);
+                            //total_detect_num +=vec2_det_num;
+                            in_vector_no++;
+                            break;
+                        }
+
+                        string in_val = "01";
+                        for(int j = 0; j < 2; ++j) {
+                            for(int i = 0; i < cktu.size(); ++i) {
+                                if(cktu[i]) {
+                                    if(i == 0) {
+                                        vec1[cktu.size()] = in_val[j];
+                                        vec2[cktu.size()] = in_val[j];
+                                    }
+                                    else {
+                                        vec1[i-1] = in_val[j];
+                                        vec2[i-1] = in_val[j];
+                                    }
+                                }    
+                            }
+                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
+                            if(result == 1) {
+                                display_io_tdf(vec1);
+                                //total_detect_num +=vec1_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+                            else if(result == 0) {
+                                display_io_tdf(vec2);
+                                //total_detect_num +=vec2_det_num;
+                                in_vector_no++;
+                                break;
+                            }
+                        }
+                        if(result != -1)
+                            break;
+                        
                         // Try to flip every unsigned bit one by one
                         unknown_bit = 0;
                         unknown_ratio = 0.0;
@@ -100,113 +162,6 @@ void ATPG::tdfatpg() {
                                 }
                             }
                         }
-                        else {
-                            for(int i = 0; i < cktu.size() + 1; ++i) {
-                                if(cktu[i]) {
-                                    if(i == 0) {
-                                        vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
-                                        vec2[cktu.size()] = (vec2[cktu.size()] == '0')? '1' : '0';
-                                    }
-                                    else {
-                                        vec1[i-1] = (vec1[i-1] == '0')? '1' : '0';
-                                        vec2[i-1] = (vec2[i-1] == '0')? '1' : '0';
-                                    }
-                                }
-                            }
-                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
-                            if(result == 1) {
-                                display_io_tdf(vec1);
-                                //total_detect_num +=vec1_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-                            else if(result == 0) {
-                                display_io_tdf(vec2);
-                                //total_detect_num +=vec2_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-                            
-                            for(int i = 0; i < cktu.size() + 1; ++i) {
-                                if(cktu[i]) {
-                                    if(rand() & 01) {
-                                        if(i == 0) {
-                                            vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
-                                            vec2[cktu.size()] = (vec2[cktu.size()] == '0')? '1' : '0';
-                                        }
-                                        else {
-                                            vec1[i-1] = (vec1[i-1] == '0')? '1' : '0';
-                                            vec2[i-1] = (vec2[i-1] == '0')? '1' : '0';
-                                        }
-                                    }
-                                }
-                            }
-                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
-                            if(result == 1) {
-                                display_io_tdf(vec1);
-                                //total_detect_num +=vec1_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-                            else if(result == 0) {
-                                display_io_tdf(vec2);
-                                //total_detect_num +=vec2_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-
-                            for(int i = 0; i < cktu.size() + 1; ++i) {
-                                if(cktu[i]) {
-                                    if(i == 0) {
-                                        vec1[cktu.size()] = '0';
-                                        vec2[cktu.size()] = '0';
-                                    }
-                                    else {
-                                        vec1[i-1] = '0';
-                                        vec2[i-1] = '0';
-                                    }
-                                }    
-                            }
-                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
-                            if(result == 1) {
-                                display_io_tdf(vec1);
-                                //total_detect_num +=vec1_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-                            else if(result == 0) {
-                                display_io_tdf(vec2);
-                                //total_detect_num +=vec2_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-
-                            for(int i = 0; i < cktu.size() + 1; ++i) {
-                                if(cktu[i]) {
-                                    if(i == 0) {
-                                        vec1[cktu.size()] = '1';
-                                        vec2[cktu.size()] = '1';
-                                    }
-                                    else {
-                                        vec1[i-1] = '1';
-                                        vec2[i-1] = '1';
-                                    }
-                                }    
-                            }
-                            result = tdfsim_v1v2(vec1, vec2, current_detect_num);
-                            if(result == 1) {
-                                display_io_tdf(vec1);
-                                //total_detect_num +=vec1_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-                            else if(result == 0) {
-                                display_io_tdf(vec2);
-                                //total_detect_num +=vec2_det_num;
-                                in_vector_no++;
-                                break;
-                            }
-                        }
                     }
                     break;
                 case FALSE:
@@ -221,23 +176,25 @@ void ATPG::tdfatpg() {
             if(current_detect_num)
                 break;
         }
-        if(fault_under_test->detected_time >= detected_num) {
-            fault_under_test->test_tried = true;
-        }
-        else {
-            if(++fault_under_test->tried_time > max_tried) {
-                fault_under_test->test_tried = true;
-            }
-        }
+        fault_under_test->test_tried = true;
         fault_under_test = nullptr;
         for (fptr fptr_ele: flist_undetect) {
             if (!fptr_ele->test_tried) {
                 fault_under_test = fptr_ele;
-                break;
+                //if(cur_tried % 2 == 0)
+                    break;
             }
         }
         total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
         no_of_calls++;
+        // If there are still undetected faults and haven't reach max tried round
+        if(fault_under_test == nullptr && cur_tried < max_tried) {
+            cur_tried++;
+            for(fptr fptr_ele : flist_undetect) {
+                fault_under_test = fptr_ele;
+                fptr_ele->test_tried = false;
+            }
+        }
     }
     //set_fault_detect_status();
     display_undetect();
@@ -260,48 +217,34 @@ int ATPG::tdfsim_v1v2(const string& vec1, const string& vec2, int& current_detec
     tdfault_sim_a_vector(vec2,  current_detect_num, true, 2, vec2_hit);
     vec2_det_num = current_detect_num;
     current_detect_num = 0;
-    if(vec1_hit && !vec2_hit) {
+    if(vec1_det_num > vec2_det_num) {
         tdfault_fault_drop(1);
         current_detect_num += vec1_det_num;
+        //fprintf(stdout, "vector detects %d faults\n", vec1_det_num);
         return 1;
     }
-    else if(!vec1_hit && vec2_hit) {
-        tdfault_fault_drop(2);
-        current_detect_num += vec2_det_num;
-        return 0;
-    }
-    else {
-        if(vec1_det_num > vec2_det_num) {
+    else if(vec1_det_num == vec2_det_num) {
+        if(vec2_det_num == 0) {
+            return -1;
+        }
+        int res = rand() & 01;
+        if(res) {
             tdfault_fault_drop(1);
             current_detect_num += vec1_det_num;
             //fprintf(stdout, "vector detects %d faults\n", vec1_det_num);
-            return 1;
         }
         else {
-            if(vec2_det_num == 0) {
-                return -1;
-            }
-            else if(vec1_det_num == vec2_det_num) {
-                int res = rand() & 01;
-                if(res) {
-                    tdfault_fault_drop(1);
-                    current_detect_num += vec1_det_num;
-                    //fprintf(stdout, "vector detects %d faults\n", vec1_det_num);
-                }
-                else {
-                    tdfault_fault_drop(2);
-                    current_detect_num += vec2_det_num;
-                    //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
-                } 
-                return res;
-            }
-            else {
-                tdfault_fault_drop(2);
-                current_detect_num += vec2_det_num;
-                //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
-                return 0;
-            }
-        }
+            tdfault_fault_drop(2);
+            current_detect_num += vec2_det_num;
+            //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
+        } 
+        return res;
+    }
+    else {
+        tdfault_fault_drop(2);
+        current_detect_num += vec2_det_num;
+        //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
+        return 0;
     }
 }
 

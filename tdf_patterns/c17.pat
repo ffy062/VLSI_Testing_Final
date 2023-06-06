@@ -11,21 +11,22 @@
 #atpg: cputime for creating dummy nodes ../sample_circuits/c17.ckt: 0.0s 0.0s
 #atpg: cputime for generating fault list ../sample_circuits/c17.ckt: 0.0s 0.0s
 T'01010 0'
-T'01001 0'
-T'01011 1'
+T'01101 1'
 T'10010 0'
-T'00111 1'
-T'11111 0'
+T'00001 1'
+T'01010 1'
+T'10110 1'
 T'11100 0'
 T'10001 1'
+T'00110 1'
 
 #FAULT COVERAGE RESULTS :
-#number of test vectors = 8
+#number of test vectors = 9
 #total number of gate faults (uncollapsed) = 34
-#total number of detected faults = 31
-#total gate fault coverage = 91.18%
+#total number of detected faults = 32
+#total gate fault coverage = 94.12%
 #number of equivalent gate faults (collapsed) = 34
-#number of equivalent detected faults = 31
-#equivalent gate fault coverage = 91.18%
+#number of equivalent detected faults = 32
+#equivalent gate fault coverage = 94.12%
 
 #atpg: cputime for test pattern generation ../sample_circuits/c17.ckt: 0.0s 0.0s
