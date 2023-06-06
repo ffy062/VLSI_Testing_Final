@@ -77,7 +77,11 @@ int main(int argc, char *argv[]) {
   atpg.input(inpFile); // input.cpp
 
 /* if vector file is provided, read it */
-  if (!vetFile.empty()) { atpg.read_vectors(vetFile); }
+  if (!vetFile.empty()) { 
+    cout << "Read vectors" << endl;
+    atpg.read_vectors(vetFile); 
+    
+  }
   atpg.timer(stdout, "for reading in circuit");
 
   atpg.level_circuit();  // level.cpp
@@ -94,6 +98,13 @@ int main(int argc, char *argv[]) {
   atpg.timer(stdout, "for generating fault list");
 
   atpg.test(); //atpg.cpp
+  atpg.compute_fault_coverage();
+
+  if (atpg.test_compression) {
+    atpg.restoreFaultList();
+    atpg.fSTC();
+  }
+
   atpg.compute_fault_coverage(); //init_flist.cpp
   atpg.timer(stdout, "for test pattern generation");
   exit(EXIT_SUCCESS);

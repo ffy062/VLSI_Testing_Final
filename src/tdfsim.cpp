@@ -275,7 +275,7 @@ void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, 
   } // end loop. for f = flist
 
   /* fault dropping  */
-  // We use a seperate function to perform fault dropping when ATPG
+  // We use a sepearte function to perform fault dropping when ATPG
   if(is_ATPG) {
     for(auto fptr_ele : flist_undetect) {
       if(fptr_ele->detect == TRUE) {
@@ -302,7 +302,7 @@ void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, 
 
 }/* end of fault_sim_a_vector */
 
-void ATPG::tdfault_fault_drop(int ptn) {
+void ATPG::tdfault_fault_drop(int ptn, vector<fptr>& fault_detected) {
   // // We do not drop the fault from the fault list to calculate the detection of all patterns
   // for(auto fptr_ele : flist_undetect) {
   //   int right_ptn = (fptr_ele->be_det == 3 || fptr_ele->be_det == ptn)? 1 : 0;
@@ -319,8 +319,11 @@ void ATPG::tdfault_fault_drop(int ptn) {
         int right_ptn = (fptr_ele->be_det == 3 || fptr_ele->be_det == ptn)? 1 : 0;
         if (right_ptn) {
           fptr_ele->detected_time++;
+          fptr_ele->atpg_detected_time++;
+          fault_detected.push_back(fptr_ele);
           if(fptr_ele->detected_time == detected_num) {
             fptr_ele->detect = TRUE;
+            flist_detect.push_back(fptr_ele);
             return true;
           }
           fptr_ele->detect = FALSE;
@@ -338,6 +341,10 @@ void ATPG::generate_tdfault_list() {
   wptr w;
   nptr n;
   fptr_s f;
+
+  flist_undetect.clear();
+  flist.clear();
+  num_of_gate_fault = 0;
 
   /* walk through every wire in the circuit*/
   for (auto pos = sort_wlist.crbegin(); pos != sort_wlist.crend(); ++pos) {
