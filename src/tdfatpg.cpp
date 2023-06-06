@@ -12,6 +12,11 @@ void ATPG::tdfatpg() {
     int no_of_aborted_faults = 0;
     int no_of_redundant_faults = 0;
     int no_of_calls = 0;
+    int first_try = 0;
+    int random = 0;
+    int all_zo = 0;
+    int flip = 0;
+
 
     srand(8);
     fptr fault_under_test = flist_undetect.front();
@@ -46,11 +51,13 @@ void ATPG::tdfatpg() {
                         display_io_tdf(vec1);
                         in_vector_no++;
                         //total_detect_num +=vec1_det_num;
+                        first_try++;
                     }
                     else if(result == 0) {
                         display_io_tdf(vec2);
                         in_vector_no++;
                         //total_detect_num +=vec2_det_num;
+                        first_try++;
                     }
                     else {
                         for(int i = 0; i < cktu.size() + 1; ++i) {
@@ -72,12 +79,14 @@ void ATPG::tdfatpg() {
                             display_io_tdf(vec1);
                             //total_detect_num +=vec1_det_num;
                             in_vector_no++;
+                            random++;
                             break;
                         }
                         else if(result == 0) {
                             display_io_tdf(vec2);
                             //total_detect_num +=vec2_det_num;
                             in_vector_no++;
+                            random++;
                             break;
                         }
 
@@ -100,12 +109,14 @@ void ATPG::tdfatpg() {
                                 display_io_tdf(vec1);
                                 //total_detect_num +=vec1_det_num;
                                 in_vector_no++;
+                                all_zo++;
                                 break;
                             }
                             else if(result == 0) {
                                 display_io_tdf(vec2);
                                 //total_detect_num +=vec2_det_num;
                                 in_vector_no++;
+                                all_zo++;
                                 break;
                             }
                         }
@@ -138,12 +149,14 @@ void ATPG::tdfatpg() {
                                             display_io_tdf(vec1);
                                             //total_detect_num +=vec1_det_num;
                                             in_vector_no++;
+                                            flip++;
                                             break;
                                         }
                                         else if(result == 0) {
                                             display_io_tdf(vec2);
                                             //total_detect_num +=vec2_det_num;
                                             in_vector_no++;
+                                            flip++;
                                             break;
                                         }
                                         if((float) rand() / RAND_MAX > 0.5 * j) {
@@ -197,6 +210,11 @@ void ATPG::tdfatpg() {
         }
     }
     //set_fault_detect_status();
+    cout << "First try detect: " << first_try << endl;
+    cout << "Random    detect: " << random << endl;
+    cout << "All 0 / 1 detect: " << all_zo << endl; 
+    cout << "Bit flip  detect: " << flip << endl;
+    cout << "Total   patterns: " << first_try + random + all_zo + flip << endl;
     display_undetect();
 }
 
@@ -224,20 +242,33 @@ int ATPG::tdfsim_v1v2(const string& vec1, const string& vec2, int& current_detec
         return 1;
     }
     else if(vec1_det_num == vec2_det_num) {
+        int res;
         if(vec2_det_num == 0) {
             return -1;
         }
-        int res = rand() & 01;
-        if(res) {
+        if(current_fault->be_det == 1) {
+            res = 1;
             tdfault_fault_drop(1);
             current_detect_num += vec1_det_num;
             //fprintf(stdout, "vector detects %d faults\n", vec1_det_num);
         }
-        else {
+        else if(current_fault->be_det == 2) {
+            res = 0;
             tdfault_fault_drop(2);
             current_detect_num += vec2_det_num;
             //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
         } 
+        else {
+            res = rand() & 01;
+            if(res) {
+                tdfault_fault_drop(1);
+                current_detect_num += vec1_det_num;
+            }
+            else {
+                tdfault_fault_drop(2);
+                current_detect_num += vec2_det_num;
+            }
+        }   
         return res;
     }
     else {
