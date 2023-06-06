@@ -122,14 +122,20 @@ T'110100111001010001000100011001100101100110000010110000101000 1'
 T'111110111110001010011001000001100011110101010111110000011101 0'
 T'100011000100110111010000001110101011110011110100010110000010 1'
 T'111111110110111111111111111101111111111111111111110001110010 1'
+T'111011111111111111111101111111110111111101111111111111111110 1'
+First try detect: 70
+Random    detect: 21
+All 0 / 1 detect: 22
+Bit flip  detect: 0
+Total   patterns: 113
 
 #FAULT COVERAGE RESULTS :
-#number of test vectors = 112
+#number of test vectors = 113
 #total number of gate faults (uncollapsed) = 2104
-#total number of detected faults = 1059
-#total gate fault coverage = 50.33%
+#total number of detected faults = 1060
+#total gate fault coverage = 50.38%
 #number of equivalent gate faults (collapsed) = 2002
-#number of equivalent detected faults = 1053
-#equivalent gate fault coverage = 52.60%
+#number of equivalent detected faults = 1054
+#equivalent gate fault coverage = 52.65%
 
-#atpg: cputime for test pattern generation ../sample_circuits/c880.ckt: 1.7s 1.8s
+#atpg: cputime for test pattern generation ../sample_circuits/c880.ckt: 1.8s 1.8s
