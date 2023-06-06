@@ -73,9 +73,11 @@ class ATPG {
 
   /* declared in tdfatpg.cpp */
   void tdfatpg();
-  int tdfsim_v1v2(const string&, const string&, int&);
+  //int tdfsim_v1v2(const string&, const string&, int&);
   void reset_fault_detect_status();
   void set_fault_detect_status();
+  void restoreFaultList();
+  void fSTC();
 
   /* defined in main.cpp */
   void set_fsim_only(const bool &);
@@ -104,7 +106,8 @@ class ATPG {
   // add a flag to seperate ATPG and fault sim, a int to identify which pattern
   void tdfault_sim_a_vector(const string &, int &, bool, int, bool &); 
   void tdfault_sim_a_vector2(const string &, int &, bool, int, bool &);
-  void tdfault_fault_drop(int);
+  //void tdfault_fault_drop(int);
+  
   int num_of_tdf_fault{};
   int detected_num{};
   bool get_tdfsim_only() { return tdfsim_only; }
@@ -128,10 +131,10 @@ class ATPG {
 
   fptr current_fault;                  /* current fault under test*/
 
-
   /* fault list */
   forward_list<fptr_s> flist;          /* fault list */
   forward_list<fptr> flist_undetect;   /* undetected fault list */
+  vector<fptr> flist_detect;           /* detected fault list */
 
   /* circuit */
   vector<wptr> sort_wlist;             /* sorted wire list with regard to level */
@@ -145,6 +148,8 @@ class ATPG {
   /* test vector  */
   int in_vector_no;                    /* number of test vectors generated */
   vector<string> vectors;              /* vector set */
+  vector<string> tdf_vectors;    /* vector set for TDF */
+  vector<vector<fptr>> vectors_faults;
 
   /* declared in tpgmain.cpp */
   int backtrack_limit;
@@ -240,6 +245,10 @@ class ATPG {
   void display_io_tdf(string&);
   void display_undetect();
   void display_fault(fptr);
+
+  void tdfault_fault_drop(int, vector<fptr>&);
+  int tdfsim_v1v2(const string&, const string&, int&, vector<fptr>&);
+  void checkRepeat(string, string, int&, int&, vector<fptr>&);
 
   /* declaration of WIRE, NODE, and FAULT classes */
   /* in our model, a wire has inputs (inode) and outputs (onode) */
@@ -341,7 +350,8 @@ class ATPG {
     FAULT();
 
     int be_det;                /* to identify which pattern detects the fault */
-    int tried_time{};           /* how many times the fault has been tested*/
+    int tried_time{};          /* how many times the fault has been tested*/
+    int atpg_detected_time{};  /* detected times during atpg */
 
     nptr node;                 /* gate under test(NIL if PI/PO fault) */
     short io;                  /* 0 = GI; 1 = GO */
