@@ -341,7 +341,7 @@ class ATPG {
     FAULT();
 
     int be_det;                /* to identify which pattern detects the fault */
-    int tried_time{};            /* how many times the fault has been tested*/
+    int tried_time{};           /* how many times the fault has been tested*/
 
     nptr node;                 /* gate under test(NIL if PI/PO fault) */
     short io;                  /* 0 = GI; 1 = GO */

@@ -85,6 +85,11 @@ T'11111111111111111111111111111111111111110 1'
 T'11111111101111111111111111111111110111111 1'
 T'11101111111111111111111111111111101111110 1'
 T'11111111111111111111111111111111111111101 1'
+First try detect: 63
+Random    detect: 2
+All 0 / 1 detect: 7
+Bit flip  detect: 3
+Total   patterns: 75
 
 #FAULT COVERAGE RESULTS :
 #number of test vectors = 75
@@ -95,4 +100,4 @@ T'11111111111111111111111111111111111111101 1'
 #number of equivalent detected faults = 1035
 #equivalent gate fault coverage = 37.97%
 
-#atpg: cputime for test pattern generation ../sample_circuits/c1355.ckt: 19.7s 19.7s
+#atpg: cputime for test pattern generation ../sample_circuits/c1355.ckt: 21.4s 21.4s

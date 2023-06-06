@@ -19,6 +19,11 @@ T'10110 1'
 T'11100 0'
 T'10001 1'
 T'00110 1'
+First try detect: 4
+Random    detect: 4
+All 0 / 1 detect: 1
+Bit flip  detect: 0
+Total   patterns: 9
 
 #FAULT COVERAGE RESULTS :
 #number of test vectors = 9

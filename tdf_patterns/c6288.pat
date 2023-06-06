@@ -162,6 +162,11 @@ T'11111111111111111010011111111111 1'
 T'11001001110010101010111001110111 0'
 T'11110111101111011011011101101000 1'
 T'11111111110101101011111111111111 1'
+First try detect: 120
+Random    detect: 10
+All 0 / 1 detect: 9
+Bit flip  detect: 13
+Total   patterns: 152
 
 #FAULT COVERAGE RESULTS :
 #number of test vectors = 152
@@ -172,4 +177,4 @@ T'11111111110101101011111111111111 1'
 #number of equivalent detected faults = 16922
 #equivalent gate fault coverage = 97.75%
 
-#atpg: cputime for test pattern generation ../sample_circuits/c6288.ckt: 19.8s 19.9s
+#atpg: cputime for test pattern generation ../sample_circuits/c6288.ckt: 19.5s 19.7s
