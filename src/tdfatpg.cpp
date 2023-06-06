@@ -282,19 +282,7 @@ int ATPG::tdfsim_v1v2(const string& vec1, const string& vec2, int& current_detec
             tdfault_fault_drop(2, current_fault_detected);
             current_detect_num += vec2_det_num;
             //fprintf(stdout, "vector detects %d faults\n", vec2_det_num);
-        } 
-        else {
-            res = rand() & 01;
-            if(res) {
-                tdfault_fault_drop(1);
-                current_detect_num += vec1_det_num;
-            }
-            else {
-                tdfault_fault_drop(2);
-                current_detect_num += vec2_det_num;
-            }
-        }   
-        return res;
+        }
     }
     else {
         tdfault_fault_drop(2, current_fault_detected);
