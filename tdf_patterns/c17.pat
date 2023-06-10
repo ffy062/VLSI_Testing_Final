@@ -13,37 +13,16 @@
 T'01010 0'
 T'01101 1'
 T'10010 0'
-T'00001 1'
-T'01010 1'
-T'10110 1'
-T'11100 0'
-T'10001 1'
 T'00110 1'
-First try detect: 4
-Random    detect: 4
-All 0 / 1 detect: 1
-Bit flip  detect: 0
-Total   patterns: 9
+T'01001 1'
+T'11110 0'
+T'11100 0'
+T'10001 0'
+T'10111 1'
+Reamin fault list size: 2
 
 #FAULT COVERAGE RESULTS :
 #number of test vectors = 9
-#total number of gate faults (uncollapsed) = 34
-#total number of detected faults = 32
-#total gate fault coverage = 94.12%
-#number of equivalent gate faults (collapsed) = 34
-#number of equivalent detected faults = 32
-#equivalent gate fault coverage = 94.12%
-
-T'00110 1'
-T'10001 1'
-T'11100 0'
-T'10110 1'
-T'01010 1'
-T'00001 1'
-T'01010 0'
-
-#FAULT COVERAGE RESULTS :
-#number of test vectors = 7
 #total number of gate faults (uncollapsed) = 34
 #total number of detected faults = 32
 #total gate fault coverage = 94.12%

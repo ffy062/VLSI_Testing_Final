@@ -71,13 +71,10 @@ class ATPG {
   /* Test compression flag */
   bool test_compression = false;
 
-  /* declared in tdfatpg.cpp */
+/* declared in tdfatpg.cpp */
   void tdfatpg();
-  //int tdfsim_v1v2(const string&, const string&, int&);
-  void reset_fault_detect_status();
-  void set_fault_detect_status();
-  void restoreFaultList();
   void fSTC();
+  void restoreFaultList();
 
   /* defined in main.cpp */
   void set_fsim_only(const bool &);
@@ -104,8 +101,8 @@ class ATPG {
   void generate_tdfault_list();
   void transition_delay_fault_simulation(int &);
   // add a flag to seperate ATPG and fault sim, a int to identify which pattern
-  void tdfault_sim_a_vector(const string &, int &, bool, int, bool &); 
-  void tdfault_sim_a_vector2(const string &, int &, bool, int, bool &);
+  void tdfault_sim_a_vector(const string &, int &, bool, int); 
+  void tdfault_sim_a_vector2(const string &, int &, bool, int);
   //void tdfault_fault_drop(int);
   
   int num_of_tdf_fault{};
@@ -129,8 +126,6 @@ class ATPG {
   typedef unique_ptr<NODE> nptr_s;    /* using smart pointer to hold/maintain the instances of NODE */
   typedef unique_ptr<FAULT> fptr_s;    /* using smart pointer to hold/maintain the instances of FAULT */
 
-  fptr current_fault;                  /* current fault under test*/
-
   /* fault list */
   forward_list<fptr_s> flist;          /* fault list */
   forward_list<fptr> flist_undetect;   /* undetected fault list */
@@ -148,7 +143,7 @@ class ATPG {
   /* test vector  */
   int in_vector_no;                    /* number of test vectors generated */
   vector<string> vectors;              /* vector set */
-  vector<string> tdf_vectors;    /* vector set for TDF */
+  vector<string> tdf_vectors;          /* vector set for TDF */
   vector<vector<fptr>> vectors_faults;
 
   /* declared in tpgmain.cpp */
@@ -246,9 +241,18 @@ class ATPG {
   void display_undetect();
   void display_fault(fptr);
 
-  void tdfault_fault_drop(int, vector<fptr>&);
+  
+  /* decalared in tdfatpg.cpp */
+  //int tdfsim_v1v2(const string&, const string&, int&);
+  void reset_fault_detect_status();
   int tdfsim_v1v2(const string&, const string&, int&, vector<fptr>&);
+  int tdfsim_v1v2(const string&, int&, vector<fptr>&);
   void checkRepeat(string, string, int&, int&, vector<fptr>&);
+  void checkRepeat(string, int&, int&, vector<fptr>&);
+  void storePtn(string&, string&, int, vector<fptr>&);
+
+  /* decalred in tdfsim.cpp */
+  void tdfault_fault_drop(int, vector<fptr>&);
 
   /* declaration of WIRE, NODE, and FAULT classes */
   /* in our model, a wire has inputs (inode) and outputs (onode) */

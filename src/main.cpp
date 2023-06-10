@@ -103,9 +103,9 @@ int main(int argc, char *argv[]) {
   if (atpg.test_compression) {
     atpg.restoreFaultList();
     atpg.fSTC();
+    atpg.compute_fault_coverage(); //init_flist.cpp
   }
 
-  atpg.compute_fault_coverage(); //init_flist.cpp
   atpg.timer(stdout, "for test pattern generation");
   exit(EXIT_SUCCESS);
 }

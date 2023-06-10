@@ -25,13 +25,13 @@ void ATPG::transition_delay_fault_simulation(int &total_detect_num) {
 
   /* for every vector */
   for (i = vectors.size() - 1; i >= 0; i--) {
-    tdfault_sim_a_vector(vectors[i], current_detect_num, false, 0, hit);
+    tdfault_sim_a_vector(vectors[i], current_detect_num, false, 0);
     total_detect_num += current_detect_num;
     fprintf(stdout, "vector[%d] detects %d faults (%d)\n", i, current_detect_num, total_detect_num);
   }
 }// fault_simulate_vectors
 
-void ATPG::tdfault_sim_a_vector(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn, bool &hit_target) {
+void ATPG::tdfault_sim_a_vector(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn) {
   int i, nckt;
   bool activate_target = false;
   fptr f;
@@ -57,12 +57,12 @@ void ATPG::tdfault_sim_a_vector(const string &vec, int &num_of_current_detect, b
     } else
       f->activate = FALSE;
   }
-  tdfault_sim_a_vector2(vec, num_of_current_detect, is_ATPG, ptn, hit_target);
+  tdfault_sim_a_vector2(vec, num_of_current_detect, is_ATPG, ptn);
 
 }
 
 /* fault simulate a single test vector */
-void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn, bool &hit_target) {
+void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn) {
   wptr w, faulty_wire;
   /* array of 16 fptrs, which points to the 16 faults in a simulation packet  */
   fptr simulated_fault_list[num_of_pattern];
@@ -285,8 +285,6 @@ void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect, 
         }
       }
     }
-    if(current_fault->detect)
-      hit_target = true;
     return;
   }
   flist_undetect.remove_if(
