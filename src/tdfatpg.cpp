@@ -255,9 +255,6 @@ void ATPG::tdfatpg() {
                 }
             }
         }
-        for(int i = 0; i < 8; ++i) {
-            cout << "#Det num = " << i << ": " << det_tim[i] << endl;
-        }
     }
     
     // cout << "# -------------------\n";
