@@ -193,4 +193,4 @@ T'111110111010111111101110101111101001 0'
 #number of equivalent detected faults = 129
 #equivalent gate fault coverage = 12.48%
 
-#atpg: cputime for test pattern generation ../sample_circuits/c432.ckt: 0.5s 0.5s
+#atpg: cputime for test pattern generation ../sample_circuits/c432.ckt: 0.5s 0.6s

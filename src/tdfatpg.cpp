@@ -227,11 +227,10 @@ void ATPG::tdfatpg() {
             }
         }
     }
-    int det_tim[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    if(detected_num > 2 && !test_compression) {
+    if(detected_num > 2) {
         flist_size = distance(flist_undetect.begin(), flist_undetect.end()); 
         cnt = 0;
-        int cur_vec_num = in_vector_no;
+        int cur_vec_num = in_vector_no, min_det;
         for(int i = 0; i < detected_num - 1; ++i) {
             // Traverse every test pattern
             for(int j = cur_vec_num - 1; j >= 0; --j) {
@@ -243,12 +242,12 @@ void ATPG::tdfatpg() {
                 // Go through all the faults the pattern detected
                 for(auto f : vectors_faults[j]) {
                     f->be_det = 1;
-                    det_tim[f->detected_time]++;
                     if(f->detected_time < detected_num && f->detected_time > 1 + i)
                         cnt++;
                 }
-                // Remove newly detected faults and store pattern
-                if(cnt > 3 - i / 2) {
+                // Remove newly detected faults and store pattern, include DTC
+                min_det = (test_compression)? 3 - i / 2 : 1 - i / 4;
+                if(cnt > min_det) {
                     current_fault_detected.clear();
                     tdfault_fault_drop(1, current_fault_detected);
                     storePtn(tdf_vectors[j], tdf_vectors[j], 1, current_fault_detected);
@@ -268,6 +267,7 @@ void ATPG::tdfatpg() {
 
 int ATPG::tdfsim_v1v2(const string& vec1, const string& vec2, int& current_detect_num, vector<fptr>& current_fault_detected) {
     int vec1_det_num = 0, vec2_det_num = 0; // fault detected by the pattern
+    // Include DTC
     int min_det = (test_compression)?current_detect_num : 1;  // minimum detect number of this round
 
     current_fault_detected.clear();
@@ -325,6 +325,7 @@ int ATPG::tdfsim_v1v2(const string& vec1, const string& vec2, int& current_detec
 
 int ATPG::tdfsim_v1v2(const string& vec1, int& current_detect_num, vector<fptr>& current_fault_detected) {
     int vec1_det_num = 0; // fault detected by the pattern
+    // Include DTC
     int min_det = (test_compression)?current_detect_num : 1; // minimum detect number of this round
 
     // Reset vector of current detect fault and fault be_detect flag
