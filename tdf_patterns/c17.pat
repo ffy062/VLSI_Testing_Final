@@ -20,8 +20,8 @@
 #number of equivalent detected faults = 32
 #equivalent gate fault coverage = 94.12%
 
-T'10111 1'
-T'10001 0'
+T'10110 1'
+T'10001 1'
 T'11100 0'
 T'01001 1'
 T'00110 1'

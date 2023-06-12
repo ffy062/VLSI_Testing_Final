@@ -29,9 +29,12 @@ void ATPG::tdfatpg() {
 
     srand(8);
     fptr fault_under_test = flist_undetect.front();
+    fptr n_fault_under_test;
     int fault_idx = 0;
     int cnt = 0;
     vector<fptr> current_fault_detected;
+    vector<wptr> n_cktin;
+    vector<wptr> n_sort_wlist;
     tdf_vectors.clear();
     while (fault_under_test != nullptr) {
         // change seed
@@ -47,11 +50,45 @@ void ATPG::tdfatpg() {
             backtrace_prob = (float)  cur_tried * 0.075 + (float) i * (0.25);
             switch (podemtdf(fault_under_test, current_backtracks, backtrace_prob)) {
                 case TRUE:
+                    n_cktu.clear();
+                    n_cktin.clear();
+                    n_sort_wlist.clear();
+                    for(auto u : cktu)
+                        n_cktu.push_back(u);
+                    for(auto in : cktin)
+                        n_cktin.push_back(in);
+                    for(auto w : sort_wlist)
+                        n_sort_wlist.push_back(w);
                     /* form a vector */
                     vec.clear();
                     // Pattern for v2
                     for (int i = 0; i < cktin.size(); ++i) {
                         vec.push_back(itoc(cktin[i]->value));
+                    }
+                    unknown_bit = 0;
+                    for(int i = 0; i < cktu.size(); ++i)
+                        if(cktu[i]) unknown_bit++;
+                    if(test_compression && max_tried - cur_tried < 1 && unknown_bit > cktin.size() / 16) {
+                        current_detect_num = 0;
+                        for (fptr fptr_ele: flist_undetect) {
+                            n_fault_under_test = fptr_ele;
+                            if(podemtdf2(n_fault_under_test, current_backtracks, 1.0 - backtrace_prob) == 1) {
+                                vec.clear();
+                                for (int i = 0; i < cktin.size(); ++i) {
+                                    vec.push_back(itoc(cktin[i]->value));
+                                }
+                                break;
+                            }
+                            cktu.clear();
+                            cktin.clear();
+                            sort_wlist.clear();
+                            for(auto u : n_cktu)
+                                cktu.push_back(u);
+                            for(auto in : n_cktin)
+                                cktin.push_back(in);
+                            for(auto w : n_sort_wlist)
+                                sort_wlist.push_back(w);
+                        }
                     }
                     /* Add one bit for v1 */
                     vec1.clear();

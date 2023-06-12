@@ -68,6 +68,7 @@ class ATPG {
 
   /* vector to store U information of TDF vector */
   vector<int> cktu;
+  vector<int> n_cktu;
   /* Test compression flag */
   bool test_compression = false;
 
@@ -216,6 +217,7 @@ class ATPG {
 
   int podem(fptr, int &);
   int podemtdf(fptr, int &, float);
+  int podemtdf2(fptr, int &, float);
   wptr fault_evaluate(fptr);
   void forward_imply(wptr);
   wptr test_possible(fptr);
