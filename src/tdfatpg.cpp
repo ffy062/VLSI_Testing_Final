@@ -10,7 +10,7 @@ void ATPG::tdfatpg() {
     string vec, vec1, vec2;
     string in_val = "01";
     bool chg_seed = false;
-    float unknown_ratio, backtrace_prob;
+    float backtrace_prob;
     int vec1_det_num, vec2_det_num, unknown_bit, result, flist_size;
     int current_detect_num = 0;
     int total_detect_num = 0;
@@ -38,6 +38,7 @@ void ATPG::tdfatpg() {
     vector<fptr> current_fault_detected;
     vector<wptr> n_cktin;
     vector<wptr> n_sort_wlist;
+    vector<int> det_vec;
     tdf_vectors.clear();
     while (fault_under_test != nullptr) {
         // change seed
@@ -76,6 +77,8 @@ void ATPG::tdfatpg() {
                         current_detect_num = 0;
                         for (fptr fptr_ele: flist_undetect) {
                             n_fault_under_test = fptr_ele;
+                            cktu.clear();
+                            vector<int>().swap(cktu);
                             if(podemtdf2(n_fault_under_test, current_backtracks, 1.0 - backtrace_prob) == 1) {
                                 vec.clear();
                                 for (int i = 0; i < cktin.size(); ++i) {
@@ -84,8 +87,11 @@ void ATPG::tdfatpg() {
                                 break;
                             }
                             cktu.clear();
+                            vector<int>().swap(cktu);
                             cktin.clear();
+                            vector<wptr>().swap(cktin);
                             sort_wlist.clear();
+                            vector<wptr>().swap(sort_wlist);
                             for(auto u : n_cktu)
                                 cktu.push_back(u);
                             for(auto in : n_cktin)
@@ -223,14 +229,16 @@ void ATPG::tdfatpg() {
             flist_undetect.sort(my_cmp);
         }
     }
+
+    // Duplicate patterns
     if(detected_num > 2) {
         flist_size = distance(flist_undetect.begin(), flist_undetect.end());
         cnt = 0;
         int cur_vec_num = in_vector_no, min_det;
-        vector<int> det_vec;
         for(int i = 0; i < detected_num - 1; ++i) {
             // Traverse every test pattern
             det_vec.clear();
+            std::vector<int>().swap(det_vec);
             for(int j = cur_vec_num - 1; j >= 0; --j) {
                 // Reset fault be_detect flag and fault count
                 for(auto f : flist_undetect) {
@@ -269,7 +277,7 @@ void ATPG::tdfatpg() {
                             det_idx = idx;
                         }   
                     }
-                    if(max_det) {
+                    if(max_det > 0) {
                         for(auto f : flist_undetect) {
                             f->be_det = 0;
                         }
@@ -287,14 +295,13 @@ void ATPG::tdfatpg() {
             }
         }
     }
-    
     // cout << "# -------------------\n";
     // cout << "# First try detect: " << first_try << endl;
     // cout << "# Random    detect: " << random << endl;
     // cout << "# All 0 / 1 detect: " << all_zo << endl;
     // cout << "# Random 2  detect: " << random_2 << endl; 
     // cout << "# Bit flip  detect: " << flip << endl;
-    display_undetect();
+    //display_undetect();
 }
 
 int ATPG::tdfsim_v1v2(const string& vec1, const string& vec2, int& current_detect_num, vector<fptr>& current_fault_detected) {
