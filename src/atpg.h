@@ -114,7 +114,7 @@ class ATPG {
   /* defined in atpg.cpp */
   void test();
 
- private:
+ //private:
 
   /* alias declaration */
   class WIRE;
@@ -252,9 +252,11 @@ class ATPG {
   void checkRepeat(string, string, int&, int&, vector<fptr>&);
   void checkRepeat(string, int&, int&, vector<fptr>&);
   void storePtn(string&, string&, int, vector<fptr>&);
+  static bool my_cmp(fptr&, fptr&);
 
   /* decalred in tdfsim.cpp */
   void tdfault_fault_drop(int, vector<fptr>&);
+  bool tdfault_sim_a_fault(const string &, fptr&);
 
   /* declaration of WIRE, NODE, and FAULT classes */
   /* in our model, a wire has inputs (inode) and outputs (onode) */

@@ -2,6 +2,10 @@
 
 using namespace std;
 
+bool ATPG::my_cmp(fptr& a, fptr& b) {
+    return a->detected_time - b->detected_time;
+}
+
 void ATPG::tdfatpg() {
     string vec, vec1, vec2;
     string in_val = "01";
@@ -20,7 +24,6 @@ void ATPG::tdfatpg() {
     int random = 0;
     int all_zo = 0;
     int random_2 = 0;
-    int flip = 0;
     // Minimum fault detect number of each round(cur_tried)
     int max_tried = max(1, (int) log2((double) detected_num)), cur_tried = 0;
     int min_det_num[5] = {1, 2, 4, 8};
@@ -31,7 +34,7 @@ void ATPG::tdfatpg() {
     fptr fault_under_test = flist_undetect.front();
     fptr n_fault_under_test;
     int fault_idx = 0;
-    int cnt = 0;
+    int cnt = 0, max_det = 0, det_idx;
     vector<fptr> current_fault_detected;
     vector<wptr> n_cktin;
     vector<wptr> n_sort_wlist;
@@ -48,6 +51,7 @@ void ATPG::tdfatpg() {
             // clear the vector of unknown bit information
             cktu.clear();
             backtrace_prob = (float)  cur_tried * 0.075 + (float) i * (0.25);
+            //set_backtrack_limit(50 + i * 10 + cur_tried * 10);
             switch (podemtdf(fault_under_test, current_backtracks, backtrace_prob)) {
                 case TRUE:
                     n_cktu.clear();
@@ -184,52 +188,6 @@ void ATPG::tdfatpg() {
                         random_2++;
                         break;
                     }
-                    
-                    // Flip every unsigned bit one by one if unknown bit size is small
-                    unknown_bit = 0;
-                    //unknown_ratio = 0.0;
-                    for(int i = 0; i < cktu.size(); ++i) {
-                        if(cktu[i]) unknown_bit++;
-                    }
-                    //unknown_ratio = (float) unknown_bit / vec1.size();
-                    if(unknown_bit > 0 && unknown_bit < 15) {
-                        for(int i = 0; i < cktu.size() + 1; ++i) {
-                            if(cktu[i]) {
-                                if(i == 0) {
-                                    vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
-                                    vec2[cktu.size()] = (vec2[cktu.size()] == '0')? '1' : '0';
-                                }
-                                else {
-                                    vec1[i-1] = (vec1[i-1] == '0')? '1' : '0';
-                                    vec2[i-1] = (vec2[i-1] == '0')? '1' : '0';
-                                }
-                                current_detect_num = cur_min_det;
-                                checkRepeat(vec1, vec2, result, current_detect_num, current_fault_detected);
-                                //result = tdfsim_v1v2(vec1, vec2, current_detect_num, current_fault_detected);
-                                if(result != -1) {
-                                    storePtn(vec1, vec2, result, current_fault_detected);
-                                    flip++;
-                                    break;
-                                }
-                                if((float) rand() / RAND_MAX < 0.5) {
-                                    if(i == 0) 
-                                        vec1[cktu.size()] = (vec1[cktu.size()] == '0')? '1' : '0';
-                                    else
-                                        vec1[i-1] = (vec1[i-1] == '0')? '1' : '0';
-                                }
-                                else {
-                                    if(i == 0) {
-                                        vec2[cktu.size()] = (vec2[cktu.size()] == '0')? '1' : '0';
-                                    }
-                                    else {
-                                        vec2[i-1] = (vec2[i-1] == '0')? '1' : '0';
-                                    }
-                                }
-                            }
-                        }
-                        if(result != -1)
-                            break;
-                    }
                     break;
                 case FALSE:
                     fault_under_test->detect = REDUNDANT;
@@ -248,13 +206,13 @@ void ATPG::tdfatpg() {
         for (fptr fptr_ele: flist_undetect) {
             if (!fptr_ele->test_tried) {
                 fault_under_test = fptr_ele;
-                //if(cur_tried % 2 == 0)
                     break;
             }
         }
         // total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
-        // no_of_calls++;
         // If there are still undetected faults and haven't reach max tried round
+        if(detected_num > 2 && cnt % detected_num == 0)
+            flist_undetect.sort(my_cmp);
         if(fault_under_test == nullptr && cur_tried < max_tried) {
             cur_tried++;
             chg_seed = true;
@@ -262,14 +220,17 @@ void ATPG::tdfatpg() {
                 fault_under_test = fptr_ele;
                 fptr_ele->test_tried = false;
             }
+            flist_undetect.sort(my_cmp);
         }
     }
     if(detected_num > 2) {
-        flist_size = distance(flist_undetect.begin(), flist_undetect.end()); 
+        flist_size = distance(flist_undetect.begin(), flist_undetect.end());
         cnt = 0;
         int cur_vec_num = in_vector_no, min_det;
+        vector<int> det_vec;
         for(int i = 0; i < detected_num - 1; ++i) {
             // Traverse every test pattern
+            det_vec.clear();
             for(int j = cur_vec_num - 1; j >= 0; --j) {
                 // Reset fault be_detect flag and fault count
                 for(auto f : flist_undetect) {
@@ -279,15 +240,49 @@ void ATPG::tdfatpg() {
                 // Go through all the faults the pattern detected
                 for(auto f : vectors_faults[j]) {
                     f->be_det = 1;
-                    if(f->detected_time < detected_num && f->detected_time > 1 + i)
+                    if(f->detected_time == i + 1)
                         cnt++;
                 }
-                // Remove newly detected faults and store pattern, include DTC
-                min_det = (test_compression)? 3 - i / 2 : 1 - i / 4;
-                if(cnt > min_det) {
-                    current_fault_detected.clear();
-                    tdfault_fault_drop(1, current_fault_detected);
-                    storePtn(tdf_vectors[j], tdf_vectors[j], 1, current_fault_detected);
+                // Remove newly detected faults and store pattern
+                if(cnt > 0) {
+                    if(test_compression) {
+                        det_vec.push_back(j);
+                        continue;
+                    }
+                    for(int k = i + 1; k < detected_num; ++k) {
+                        current_fault_detected.clear();
+                        tdfault_fault_drop(1, current_fault_detected);
+                        storePtn(tdf_vectors[j], tdf_vectors[j], 1, current_fault_detected);
+                    }
+                }
+            }
+            if(test_compression) {
+                while(1) {
+                    max_det = 0;
+                    for(auto idx : det_vec) {
+                        cnt = 0;
+                        for(auto f : vectors_faults[idx]) {
+                            if(f->detected_time == i + 1) cnt++;
+                        }
+                        if(cnt >= max_det) {
+                            max_det = cnt;
+                            det_idx = idx;
+                        }   
+                    }
+                    if(max_det) {
+                        for(auto f : flist_undetect) {
+                            f->be_det = 0;
+                        }
+                        for(auto f : vectors_faults[det_idx]) {
+                            f->be_det = 1;
+                        }
+                        for(int k = i + 1; k < detected_num; ++k) {
+                            current_fault_detected.clear();
+                            tdfault_fault_drop(1, current_fault_detected);
+                            storePtn(tdf_vectors[det_idx], tdf_vectors[det_idx], 1, current_fault_detected);
+                        }
+                    }
+                    else break;
                 }
             }
         }

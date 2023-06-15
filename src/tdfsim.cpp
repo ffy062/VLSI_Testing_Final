@@ -31,6 +31,30 @@ void ATPG::transition_delay_fault_simulation(int &total_detect_num) {
   }
 }// fault_simulate_vectors
 
+bool ATPG::tdfault_sim_a_fault(const string &vec, fptr& cur_fault) {
+  int i, nckt;
+  fptr f;
+
+  for (i = 0; i < cktin.size(); i++) {
+    cktin[i]->value = ctoi(vec[i]);
+  }
+
+  nckt = sort_wlist.size();
+  for (i = 0; i < nckt; i++) {
+    if (i < cktin.size()) {
+      sort_wlist[i]->set_changed();
+    } else {
+      sort_wlist[i]->value = U;
+    }
+  }
+
+  sim(); /* do a fault-free simulation, see sim.c */
+  if (cur_fault->fault_type == sort_wlist[cur_fault->to_swlist]->value) {
+    return true;
+  } else
+    return false;
+}
+
 void ATPG::tdfault_sim_a_vector(const string &vec, int &num_of_current_detect, bool is_ATPG, int ptn) {
   int i, nckt;
   bool activate_target = false;
