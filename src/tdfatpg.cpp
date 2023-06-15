@@ -11,7 +11,7 @@ void ATPG::tdfatpg() {
     string in_val = "01";
     bool chg_seed = false;
     float backtrace_prob;
-    int vec1_det_num, vec2_det_num, unknown_bit, result, flist_size;
+    int unknown_bit, result, flist_size;
     int current_detect_num = 0;
     int total_detect_num = 0;
     int total_no_of_backtracks = 0;  // accumulative number of backtracks
@@ -33,7 +33,6 @@ void ATPG::tdfatpg() {
     srand(8);
     fptr fault_under_test = flist_undetect.front();
     fptr n_fault_under_test;
-    int fault_idx = 0;
     int cnt = 0, max_det = 0, det_idx;
     vector<fptr> current_fault_detected;
     vector<wptr> n_cktin;
@@ -260,7 +259,8 @@ void ATPG::tdfatpg() {
                     for(int k = i + 1; k < detected_num; ++k) {
                         current_fault_detected.clear();
                         tdfault_fault_drop(1, current_fault_detected);
-                        storePtn(tdf_vectors[j], tdf_vectors[j], 1, current_fault_detected);
+                        vec = tdf_vectors[j];
+                        storePtn(vec, vec, 1, current_fault_detected);
                     }
                 }
             }
@@ -287,6 +287,7 @@ void ATPG::tdfatpg() {
                         for(int k = i + 1; k < detected_num; ++k) {
                             current_fault_detected.clear();
                             tdfault_fault_drop(1, current_fault_detected);
+                            vec = tdf_vectors[det_idx];
                             storePtn(tdf_vectors[det_idx], tdf_vectors[det_idx], 1, current_fault_detected);
                         }
                     }
